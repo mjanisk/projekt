@@ -4,7 +4,6 @@ from win32com.propsys import propsys, pscon
 import shutil
 
 def valik(): #easygui funktsioon
-    
     msg ="Mida sa teha soovid?"
     title = "Failihaldur"
     choices = ["Sorteeri žanri järgi", "2", "3", "4"] #valik, mida kasutaja taha programmiga teha
