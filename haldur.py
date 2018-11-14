@@ -26,7 +26,9 @@ if choice == "Sorteeri žanri järgi":
         for j in i[2]:
             sorteeri(kaust+aa[0]+j) #teeb iga failiga läbi
             os.remove(kaust1+aa[0]+j)
-
+elif choice == "Failide ümbernimetamine":
+    kaust3 = easygui.diropenbox(msg="Vali kaust, kus soovid ümbernimetamist läbi viia", title=None, default=None)
+    var2 = easygui.buttonbox("Kas soovid midagi lisada ette või taha?: ", "", ["Ette","Taha"])
 
 
 
