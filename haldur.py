@@ -16,7 +16,7 @@ def sorteeri(kaust):
         if os.path.isdir(kaust1+aa[0]+title.GetValue()[0]) == True:shutil.copy((kaust1+aa[0]+j),(kaust1+aa[0]+title.GetValue()[0]))
         else:os.mkdir(kaust1+aa[0]+title.GetValue()[0]); shutil.copy((kaust1+aa[0]+j),(kaust1+aa[0]+title.GetValue()[0]))
     except TypeError:print("Faili "+kaust+" žanri ei õnnestunud leida")
-    os.remove(kaust1+aa[0]+j)
+    
 valik()
 a = ["\\"]; aa=(''.join(a)) #escape cancer
 if choice == "Sorteeri žanri järgi":
@@ -25,6 +25,7 @@ if choice == "Sorteeri žanri järgi":
     for i in os.walk(kaust):
         for j in i[2]:
             sorteeri(kaust+aa[0]+j) #teeb iga failiga läbi
+            os.remove(kaust1+aa[0]+j)
 
 
 
