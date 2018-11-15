@@ -3,79 +3,93 @@ import easygui
 from win32com.propsys import propsys, pscon
 import shutil
 
-def valik(): #easygui funktsioon
-    msg ="Mida sa teha soovid?"
+
+def valik():
+    msg = "Mida sa teha soovid?"
     title = "Failihaldur"
-    choices = ["Sorteeri žanri järgi", "Failide ümbernimetamine", "Failide ümbernimetamine tunnuse järgi", "4"] #valik, mida kasutaja taha programmiga teha
-    global choice
-    choice = easygui.choicebox(msg, title, choices)
+    choices = ["Sorteeri tunnuse järgi", "Kausta kõigi failide ümbernimetamine",
+               "Failide ümbernimetamine tunnuse järgi", "4"]  # valik, mida kasutaja taha programmiga teha
+    otsus = easygui.choicebox(msg, title, choices)
+    return otsus
 
-def sorteeri(kaust):
-    properties = propsys.SHGetPropertyStoreFromParsingName(kaust) #file path
-    title = properties.GetValue(pscon.PKEY_Music_Genre)
-    try: #kui Genre on olemas
-        if os.path.isdir(kaust1+aa[0]+title.GetValue()[0]) == True:
-            shutil.copy((kaust1+aa[0]+j),(kaust1+aa[0]+title.GetValue()[0]))
-        else:
-            os.mkdir(kaust1+aa[0]+title.GetValue()[0]); shutil.copy((kaust1+aa[0]+j),(kaust1+aa[0]+title.GetValue()[0]))
-    except TypeError:print("Faili "+kaust+" žanri ei õnnestunud leida")
 
-def nimeta(kaust, positsioon, liide):
-    temp_list = os.listdir(kaust3)
+def sorteeri_tunnus(kaust, tunnus):
+    for l in os.walk(kaust):
+        for m in l[2]:
+            fail_dir = kaust + aa[0] + m
+            properties = propsys.SHGetPropertyStoreFromParsingName(fail_dir)  # file path
+            title = properties.GetValue(votmed[tunnus])
+            try:
+                liide = tunnuse_saamine(title, tunnus)
+                uus_dir = kaust + aa[0] + liide
+                if not os.path.isdir(uus_dir):
+                    os.mkdir(uus_dir)
+                shutil.copy(fail_dir, uus_dir)
+            except TypeError or NameError:
+                print("Faili " + fail_dir + " žanri ei õnnestunud leida")
+
+
+def nimeta_kaust(kaust, positsioon, liide):
+    temp_list = os.listdir(kaust)
     for k in range(len(temp_list)):
         vana_nimi = temp_list[k]
         nime_list = vana_nimi.split('.')
-        if var2 == 'Ette':
-            os.rename(kaust3 + aa[0] + vana_nimi, kaust3 + aa[0] + liide + nime_list[0] + '.' + nime_list[1])
+        vana_dir = kaust + aa[0] + vana_nimi
+        if positsioon == 'Algus':
+            os.rename(vana_dir, kaust + aa[0] + liide + ' ' + nime_list[0] + '.' + nime_list[1])
         else:
-            os.rename(kaust3 + aa[0] + vana_nimi, kaust3 + aa[0] + nime_list[0] + liide + '.' + nime_list[1])
-            
-def sorteerinimeta(kaust4, valik2):
-    if valik2 == "Žanr":
-        list1 = []
-        for i in os.walk(kaust4):
-            for j in i[2]:
-                properties1 = propsys.SHGetPropertyStoreFromParsingName(kaust4+aa[0]+j)
-                title1 = properties1.GetValue(pscon.PKEY_Music_Genre)
-                list1.append([j,title1.GetValue()[0]])
-        print(list1)
-    elif valik2 == "Album":
-        list1 = []
-        for i in os.walk(kaust4):
-            for j in i[2]:
-                properties1 = propsys.SHGetPropertyStoreFromParsingName(kaust4+aa[0]+j)
-                title1 = properties1.GetValue(pscon.PKEY_Music_AlbumTitle)
-                list1.append([j,title1.GetValue()])
-        print(list1)
-    elif valik2 == "Faililõpp":
-        list1 = []
-        for i in os.walk(kaust4):
-            for j in i[2]:
-                properties1 = propsys.SHGetPropertyStoreFromParsingName(kaust4+aa[0]+j)
-                title1 = properties1.GetValue(pscon.PKEY_FileName)
-                list1.append([j,title1.GetValue().split(".")[::-1][0]])
-        print(list1)
-                
-valik()
+            os.rename(vana_dir, kaust + aa[0] + nime_list[0] + ' ' + liide + '.' + nime_list[1])
 
-a = ["\\"]; aa=(''.join(a)) #escape cancer
-if choice == "Sorteeri žanri järgi":
-    kaust = easygui.diropenbox(msg="Vali kaust, kus soovid sorteerimist läbi viia", title=None, default=None) 
-    kaust1 = kaust
+
+def tunnuse_saamine(title, tunnus):
+    if tunnus == "Žanr":
+        liide = title.GetValue()[0]
+    elif tunnus == "Album":
+        liide = title.GetValue()
+    elif tunnus == "Faililõpp":
+        liide = title.GetValue().split(".")[::-1][0]
+    return liide
+
+
+def tunnusega_failid(kaust, tunnus):
+    jarjend = []
     for i in os.walk(kaust):
         for j in i[2]:
-            sorteeri(kaust+aa[0]+j) #teeb iga failiga läbi
-            os.remove(kaust1+aa[0]+j)
-elif choice == "Failide ümbernimetamine":
-    kaust3 = easygui.diropenbox(msg="Vali kaust, kus soovid ümbernimetamist läbi viia", title=None, default=None)
-    var2 = easygui.buttonbox("Kas soovid midagi lisada ette või taha?: ", "", ["Ette","Taha"])
-    liide = easygui.enterbox('Mida soovid lisada failinimedele?')
-    nimeta(kaust3, var2, liide)
+            fail_dir = kaust + aa[0] + j
+            properties = propsys.SHGetPropertyStoreFromParsingName(fail_dir)
+            title = properties.GetValue(votmed[tunnus])
+            try:
+                liide = tunnuse_saamine(fail_dir, tunnus)
+            except TypeError or NameError:
+                continue
+            if title.GetValue() is not None:
+                jarjend.append([j, liide])
+    return jarjend
 
+
+def nimeta_tunnus(failid, kaust):
+    for element in failid:
+        nime_list = element[0].split('.')
+        vana_dir = kaust + aa[0] + element[0]
+        uus_dir = kaust + aa[0] + nime_list[0] + ' [' + element[1] + '].' + nime_list[1]
+        os.rename(vana_dir, uus_dir)
+
+
+choice = valik()
+
+aa = (''.join(["\\"]))  # escape cancer
+votmed = {'Žanr': pscon.PKEY_Music_Genre, 'Album': pscon.PKEY_Music_AlbumTitle, 'Faililõpp': pscon.PKEY_FileName}
+
+if choice == "Sorteeri tunnuse järgi":
+    alg_kaust = easygui.diropenbox(msg="Vali kaust, kus soovid sorteerimist läbi viia")
+    lisand = easygui.buttonbox("Millise tunnuse järgi soovid sorteerida?", "", ["Žanr", "Album", "Faililõpp"])
+    sorteeri_tunnus(alg_kaust, lisand)
+elif choice == "Kausta kõigi failide ümbernimetamine":
+    alg_kaust = easygui.diropenbox(msg="Vali kaust, kus soovid ümbernimetamist läbi viia")
+    lisand = easygui.enterbox('Mida soovid lisada failinimedele?')
+    algus_lopp = easygui.buttonbox("Kas soovid seda lisada nime algusesse või lõppu?: ", "", ["Algus", "Lõpp"])
+    nimeta_kaust(alg_kaust, algus_lopp, lisand)
 elif choice == "Failide ümbernimetamine tunnuse järgi":
-    kaust4 = easygui.diropenbox(msg="Vali kaust, kus soovid ümbernimetamist tunnuse järgi läbi viia", title=None, default=None)
-    valik2 = easygui.buttonbox("Millise tunnuse järgi soovid faili ümber nimetada?", "", ["Žanr","Album","Faililõpp"])
-    sorteerinimeta(kaust4, valik2)
-    
-
-    
+    alg_kaust = easygui.diropenbox(msg="Vali kaust, kus soovid ümbernimetamist tunnuse järgi läbi viia")
+    lisand = easygui.buttonbox("Millise tunnuse soovid failinimele lisada?", "", ["Žanr", "Album", "Faililõpp"])
+    nimeta_tunnus(tunnusega_failid(alg_kaust, lisand), alg_kaust)
