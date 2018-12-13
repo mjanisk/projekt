@@ -2,8 +2,9 @@ import os
 import easygui
 from win32com.propsys import propsys, pscon
 import shutil
-import tkinter
+import tkinter as tk
 from tkinter import ttk
+from functools import partial
 
 
 def valik():
@@ -85,13 +86,13 @@ choice = valik()
 if choice == "Sorteeri tunnuse järgi":
     # lisand = easygui.buttonbox("Millise tunnuse järgi soovid sorteerida?", "", ["Žanr", "Album", "Faililõpp"])
     # jätsin algse igaks juhuks alles
-    base = tkinter.Tk()     # teeb akna
+    base = tk.Tk()     # teeb akna
     base.title("Sorteeri tunnuse järgi")    # annnab aknale pealkirja
-    main_frame = tkinter.Frame(base)    # tekitab raamistiku (window) akna jaoks
+    main_frame = tk.Frame(base)    # tekitab raamistiku (window) akna jaoks
     main_frame.grid(column=0, row=0)    # jaotab window mentaalselt tükkideks
-    ttk.Label(main_frame, text="Millise tunnuse järgi soovid sorteerida?").grid(column=1, row=0) # paneb teksti kasti
-    zanr_nupp = ttk.Button(main_frame, text='Žanr', command=sorteeri_tunnus(alg_kaust, 'Žanr'))     # teeb nupu
-    zanr_nupp.grid(row=2, column=2) # paigutab nupu
+    ttk.Label(main_frame, text="Millise tunnuse järgi soovid sorteerida?").grid(column=1, row=0)    # paneb teksti kasti
+    zanr_nupp = ttk.Button(main_frame, text='Žanr', command=partial(sorteeri_tunnus, alg_kaust, 'Žanr'))     # teeb nupu
+    zanr_nupp.grid(row=2, column=2)     # paigutab nupu
     base.mainloop()     # laseb aknal ilmuda
     # sorteeri_tunnus(alg_kaust, lisand)
     # jätsin igaks juhuks alles
