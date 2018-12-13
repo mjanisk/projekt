@@ -12,9 +12,7 @@ def valik():
     title = "Failihaldur"
     choices = ["Sorteeri tunnuse järgi", "Kausta kõigi failide ümbernimetamine",
                "Failide ümbernimetamine tunnuse järgi"]
-    for tunnus in choices:
-        pass
-    otsus = easygui.choicebox(msg, title, choices)
+    otsus = easygui.choicebox(msg, title, choices)  # physically couldnt make tkinter work w this
     return otsus
 
 
@@ -38,13 +36,20 @@ def sorteeri_tunnus(kaust, tunnus):
 def nimeta_kaust(kaust, positsioon, liide):
     temp_list = os.listdir(kaust)
     for k in range(len(temp_list)):
-        vana_nimi = temp_list[k]
-        nime_list = vana_nimi.split('.')
-        vana_dir = kaust + aa[0] + vana_nimi
-        if positsioon == 'Algus':
-            os.rename(vana_dir, kaust + aa[0] + liide + ' ' + nime_list[0] + '.' + nime_list[1])
-        else:
-            os.rename(vana_dir, kaust + aa[0] + nime_list[0] + ' ' + liide + '.' + nime_list[1])
+        try:
+            vana_nimi = temp_list[k]
+            nime_list = vana_nimi.split('.')
+            vana_dir = kaust + aa[0] + vana_nimi
+            if positsioon == 'Algus':
+                os.rename(vana_dir, kaust + aa[0] + liide + ' ' + nime_list[0] + '.' + nime_list[1])
+            else:
+                os.rename(vana_dir, kaust + aa[0] + nime_list[0] + ' ' + liide + '.' + nime_list[1])
+            if k == len(temp_list) - 1:
+                main_base.destroy()
+        except IndexError:
+            if k == len(temp_list) - 1:
+                main_base.destroy()
+            pass
 
 
 def tunnuse_saamine(title, tunnus):
@@ -93,16 +98,16 @@ def kysi_failid():
     return list1
 
 
-def main_funk():    # jagan väiksemateks tükkideks pärast
+def main_funk():
     alg_kaust = kysi_kaust()
     if alg_kaust != '':
         choice = valik()
         global main_base
+        main_base = tk.Tk()
+        main_base.title('Failihaldur')
+        main_frame = tk.Frame(main_base)
+        main_frame.grid(column=0, row=0)
         if choice == "Sorteeri tunnuse järgi":
-            main_base = tk.Tk()
-            main_base.title("Sorteeri tunnuse järgi")
-            main_frame = tk.Frame(main_base)
-            main_frame.grid(column=0, row=0)
             ttk.Label(main_frame, text="Millise tunnuse järgi soovid sorteerida?").grid(column=1, row=0)
             tunnused = ['Žanr', 'Album', 'Faililõpp']
             for tunnus in tunnused:
@@ -111,8 +116,12 @@ def main_funk():    # jagan väiksemateks tükkideks pärast
             main_base.mainloop()
         elif choice == "Kausta kõigi failide ümbernimetamine":
             lisand = easygui.enterbox('Mida soovid lisada failinimedele?')
-            algus_lopp = easygui.buttonbox("Kas soovid seda lisada nime algusesse või lõppu?: ", "", ["Algus", "Lõpp"])
-            nimeta_kaust(alg_kaust, algus_lopp, lisand)
+            ttk.Label(main_frame, text="Kas soovid seda lisada nime algusesse või lõppu?").grid(column=1, row=2)
+            a_nupp = ttk.Button(main_frame, text='Algus', command=partial(nimeta_kaust, alg_kaust, 'Algus', lisand))
+            l_nupp = ttk.Button(main_frame, text='Lõpp', command=partial(nimeta_kaust, alg_kaust, 'Lõpp', lisand))
+            a_nupp.grid(row=3, column=1)
+            l_nupp.grid(row=4, column=1)
+            main_base.mainloop()
         elif choice == "Failide ümbernimetamine tunnuse järgi":
             lisand = easygui.buttonbox("Millise tunnuse soovid failinimele lisada?", "", ["Žanr", "Album", "Faililõpp"])
             nimeta_tunnus(tunnusega_failid(alg_kaust, lisand), alg_kaust)
@@ -123,12 +132,12 @@ votmed = {'Žanr': pscon.PKEY_Music_Genre, 'Album': pscon.PKEY_Music_AlbumTitle,
 
 esiaken_base = tk.Tk()
 esiaken_base.title('Failihaldur')
-esiaken_frame = tk.Frame(esiaken_base)
+esiaken_frame = ttk.Frame(esiaken_base)
 esiaken_frame.grid(column=0, row=0)
 ttk.Label(esiaken_frame, text="Tere!").grid(column=1, row=0)
 ttk.Label(esiaken_frame, text="Alustamiseks vajuta Alusta, lõpetamiseks Lõpeta").grid(column=1, row=1)
 alusta_nupp = ttk.Button(esiaken_frame, text="Alusta", command=main_funk)
 alusta_nupp.grid(column=0, row=2)
-lopeta_nupp = ttk.Button(esiaken_frame, text="Lõpeta", command=quit)
+lopeta_nupp = ttk.Button(esiaken_frame, text="Lõpeta", command=esiaken_base.destroy)
 lopeta_nupp.grid(column=2, row=2)
 esiaken_base.mainloop()
