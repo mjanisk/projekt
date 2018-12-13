@@ -75,21 +75,18 @@ def nimeta_tunnus(failid, kaust):
         os.rename(vana_dir, uus_dir)
 
 
-choice = valik()
-
 aa = (''.join(["\\"]))  # escape cancer
 votmed = {'Žanr': pscon.PKEY_Music_Genre, 'Album': pscon.PKEY_Music_AlbumTitle, 'Faililõpp': pscon.PKEY_FileName}
 
+alg_kaust = easygui.diropenbox(msg="Vali kaust, millega tahad muutust läbi viia")
+choice = valik()
 if choice == "Sorteeri tunnuse järgi":
-    alg_kaust = easygui.diropenbox(msg="Vali kaust, kus soovid sorteerimist läbi viia")
     lisand = easygui.buttonbox("Millise tunnuse järgi soovid sorteerida?", "", ["Žanr", "Album", "Faililõpp"])
     sorteeri_tunnus(alg_kaust, lisand)
 elif choice == "Kausta kõigi failide ümbernimetamine":
-    alg_kaust = easygui.diropenbox(msg="Vali kaust, kus soovid ümbernimetamist läbi viia")
     lisand = easygui.enterbox('Mida soovid lisada failinimedele?')
     algus_lopp = easygui.buttonbox("Kas soovid seda lisada nime algusesse või lõppu?: ", "", ["Algus", "Lõpp"])
     nimeta_kaust(alg_kaust, algus_lopp, lisand)
 elif choice == "Failide ümbernimetamine tunnuse järgi":
-    alg_kaust = easygui.diropenbox(msg="Vali kaust, kus soovid ümbernimetamist tunnuse järgi läbi viia")
     lisand = easygui.buttonbox("Millise tunnuse soovid failinimele lisada?", "", ["Žanr", "Album", "Faililõpp"])
     nimeta_tunnus(tunnusega_failid(alg_kaust, lisand), alg_kaust)
