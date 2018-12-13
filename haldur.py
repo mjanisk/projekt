@@ -11,7 +11,9 @@ def valik():
     msg = "Mida sa teha soovid?"
     title = "Failihaldur"
     choices = ["Sorteeri tunnuse järgi", "Kausta kõigi failide ümbernimetamine",
-               "Failide ümbernimetamine tunnuse järgi", "4"]  # valik, mida kasutaja taha programmiga teha
+               "Failide ümbernimetamine tunnuse järgi"]
+    for tunnus in choices:
+        pass
     otsus = easygui.choicebox(msg, title, choices)
     return otsus
 
@@ -20,7 +22,7 @@ def sorteeri_tunnus(kaust, tunnus):
     for l in os.walk(kaust):
         for m in l[2]:
             fail_dir = kaust + aa[0] + m
-            properties = propsys.SHGetPropertyStoreFromParsingName(fail_dir)  # file path
+            properties = propsys.SHGetPropertyStoreFromParsingName(fail_dir)
             title = properties.GetValue(votmed[tunnus])
             try:
                 liide = tunnuse_saamine(title, tunnus)
@@ -30,6 +32,7 @@ def sorteeri_tunnus(kaust, tunnus):
                 shutil.copy(fail_dir, uus_dir)
             except TypeError or NameError:
                 print("Faili " + fail_dir + " žanri ei õnnestunud leida")
+    main_base.destroy()
 
 
 def nimeta_kaust(kaust, positsioon, liide):
@@ -62,7 +65,7 @@ def tunnusega_failid(kaust, tunnus):
             properties = propsys.SHGetPropertyStoreFromParsingName(fail_dir)
             title = properties.GetValue(votmed[tunnus])
             try:
-                liide = tunnuse_saamine(fail_dir, tunnus)
+                liide = tunnuse_saamine(title, tunnus)
             except TypeError or NameError:
                 continue
             if title.GetValue() is not None:
@@ -76,36 +79,56 @@ def nimeta_tunnus(failid, kaust):
         vana_dir = kaust + aa[0] + element[0]
         uus_dir = kaust + aa[0] + nime_list[0] + ' [' + element[1] + '].' + nime_list[1]
         os.rename(vana_dir, uus_dir)
-def kaust():
+
+
+def kysi_kaust():
     nimi = filedialog.askdirectory()
-    return nimi
-def failid():
-    list1 = filedialog.askopenfilenames(parent=main_frame, initialdir= "/", title='Vajuta CTRL, et valida mitu faili')
+    temp_list = nimi.split('/')
+    parandatud = aa.join(temp_list)
+    return parandatud
+
+
+def kysi_failid():
+    list1 = filedialog.askopenfilenames(initialdir="/", title='Vajuta CTRL, et valida mitu faili')
     return list1
+
+
+def main_funk():    # jagan väiksemateks tükkideks pärast
+    alg_kaust = kysi_kaust()
+    if alg_kaust != '':
+        choice = valik()
+        global main_base
+        if choice == "Sorteeri tunnuse järgi":
+            main_base = tk.Tk()
+            main_base.title("Sorteeri tunnuse järgi")
+            main_frame = tk.Frame(main_base)
+            main_frame.grid(column=0, row=0)
+            ttk.Label(main_frame, text="Millise tunnuse järgi soovid sorteerida?").grid(column=1, row=0)
+            tunnused = ['Žanr', 'Album', 'Faililõpp']
+            for tunnus in tunnused:
+                nupp = ttk.Button(main_frame, text=tunnus, command=partial(sorteeri_tunnus, alg_kaust, tunnus))
+                nupp.grid(row=2, column=tunnused.index(tunnus))
+            main_base.mainloop()
+        elif choice == "Kausta kõigi failide ümbernimetamine":
+            lisand = easygui.enterbox('Mida soovid lisada failinimedele?')
+            algus_lopp = easygui.buttonbox("Kas soovid seda lisada nime algusesse või lõppu?: ", "", ["Algus", "Lõpp"])
+            nimeta_kaust(alg_kaust, algus_lopp, lisand)
+        elif choice == "Failide ümbernimetamine tunnuse järgi":
+            lisand = easygui.buttonbox("Millise tunnuse soovid failinimele lisada?", "", ["Žanr", "Album", "Faililõpp"])
+            nimeta_tunnus(tunnusega_failid(alg_kaust, lisand), alg_kaust)
 
 
 aa = (''.join(["\\"]))  # escape cancer
 votmed = {'Žanr': pscon.PKEY_Music_Genre, 'Album': pscon.PKEY_Music_AlbumTitle, 'Faililõpp': pscon.PKEY_FileName}
 
-alg_kaust = kaust()
-choice = valik()
-if choice == "Sorteeri tunnuse järgi":
-    # lisand = easygui.buttonbox("Millise tunnuse järgi soovid sorteerida?", "", ["Žanr", "Album", "Faililõpp"])
-    # jätsin algse igaks juhuks alles
-    base = tk.Tk()     # teeb akna
-    base.title("Sorteeri tunnuse järgi")    # annnab aknale pealkirja
-    main_frame = tk.Frame(base)    # tekitab raamistiku (window) akna jaoks
-    main_frame.grid(column=0, row=0)    # jaotab window mentaalselt tükkideks
-    ttk.Label(main_frame, text="Millise tunnuse järgi soovid sorteerida?").grid(column=1, row=0)    # paneb teksti kasti
-    zanr_nupp = ttk.Button(main_frame, text='Žanr', command=partial(sorteeri_tunnus, alg_kaust, 'Žanr'))     # teeb nupu
-    zanr_nupp.grid(row=2, column=2)     # paigutab nupu
-    base.mainloop()     # laseb aknal ilmuda
-    # sorteeri_tunnus(alg_kaust, lisand)
-    # jätsin igaks juhuks alles
-elif choice == "Kausta kõigi failide ümbernimetamine":
-    lisand = easygui.enterbox('Mida soovid lisada failinimedele?')
-    algus_lopp = easygui.buttonbox("Kas soovid seda lisada nime algusesse või lõppu?: ", "", ["Algus", "Lõpp"])
-    nimeta_kaust(alg_kaust, algus_lopp, lisand)
-elif choice == "Failide ümbernimetamine tunnuse järgi":
-    lisand = easygui.buttonbox("Millise tunnuse soovid failinimele lisada?", "", ["Žanr", "Album", "Faililõpp"])
-    nimeta_tunnus(tunnusega_failid(alg_kaust, lisand), alg_kaust)
+esiaken_base = tk.Tk()
+esiaken_base.title('Failihaldur')
+esiaken_frame = tk.Frame(esiaken_base)
+esiaken_frame.grid(column=0, row=0)
+ttk.Label(esiaken_frame, text="Tere!").grid(column=1, row=0)
+ttk.Label(esiaken_frame, text="Alustamiseks vajuta Alusta, lõpetamiseks Lõpeta").grid(column=1, row=1)
+alusta_nupp = ttk.Button(esiaken_frame, text="Alusta", command=main_funk)
+alusta_nupp.grid(column=0, row=2)
+lopeta_nupp = ttk.Button(esiaken_frame, text="Lõpeta", command=quit)
+lopeta_nupp.grid(column=2, row=2)
+esiaken_base.mainloop()
