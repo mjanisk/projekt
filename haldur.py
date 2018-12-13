@@ -3,7 +3,7 @@ import easygui
 from win32com.propsys import propsys, pscon
 import shutil
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from functools import partial
 
 
