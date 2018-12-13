@@ -76,12 +76,18 @@ def nimeta_tunnus(failid, kaust):
         vana_dir = kaust + aa[0] + element[0]
         uus_dir = kaust + aa[0] + nime_list[0] + ' [' + element[1] + '].' + nime_list[1]
         os.rename(vana_dir, uus_dir)
+def kaust():
+    nimi = filedialog.askdirectory()
+    return nimi
+def failid():
+    list1 = filedialog.askopenfilenames(parent=main_frame, initialdir= "/", title='Vajuta CTRL, et valida mitu faili')
+    return list1
 
 
 aa = (''.join(["\\"]))  # escape cancer
 votmed = {'Žanr': pscon.PKEY_Music_Genre, 'Album': pscon.PKEY_Music_AlbumTitle, 'Faililõpp': pscon.PKEY_FileName}
 
-alg_kaust = easygui.diropenbox(msg="Vali kaust, millega tahad muutust läbi viia")
+alg_kaust = kaust()
 choice = valik()
 if choice == "Sorteeri tunnuse järgi":
     # lisand = easygui.buttonbox("Millise tunnuse järgi soovid sorteerida?", "", ["Žanr", "Album", "Faililõpp"])
