@@ -2,6 +2,8 @@ import os
 import easygui
 from win32com.propsys import propsys, pscon
 import shutil
+import tkinter
+from tkinter import ttk
 
 
 def valik():
@@ -81,8 +83,18 @@ votmed = {'Žanr': pscon.PKEY_Music_Genre, 'Album': pscon.PKEY_Music_AlbumTitle,
 alg_kaust = easygui.diropenbox(msg="Vali kaust, millega tahad muutust läbi viia")
 choice = valik()
 if choice == "Sorteeri tunnuse järgi":
-    lisand = easygui.buttonbox("Millise tunnuse järgi soovid sorteerida?", "", ["Žanr", "Album", "Faililõpp"])
-    sorteeri_tunnus(alg_kaust, lisand)
+    # lisand = easygui.buttonbox("Millise tunnuse järgi soovid sorteerida?", "", ["Žanr", "Album", "Faililõpp"])
+    # jätsin algse igaks juhuks alles
+    base = tkinter.Tk()     # teeb akna
+    base.title("Sorteeri tunnuse järgi")    # annnab aknale pealkirja
+    main_frame = tkinter.Frame(base)    # tekitab raamistiku (window) akna jaoks
+    main_frame.grid(column=0, row=0)    # jaotab window mentaalselt tükkideks
+    ttk.Label(main_frame, text="Millise tunnuse järgi soovid sorteerida?").grid(column=1, row=0) # paneb teksti kasti
+    zanr_nupp = ttk.Button(main_frame, text='Žanr', command=sorteeri_tunnus(alg_kaust, 'Žanr'))     # teeb nupu
+    zanr_nupp.grid(row=2, column=2) # paigutab nupu
+    base.mainloop()     # laseb aknal ilmuda
+    # sorteeri_tunnus(alg_kaust, lisand)
+    # jätsin igaks juhuks alles
 elif choice == "Kausta kõigi failide ümbernimetamine":
     lisand = easygui.enterbox('Mida soovid lisada failinimedele?')
     algus_lopp = easygui.buttonbox("Kas soovid seda lisada nime algusesse või lõppu?: ", "", ["Algus", "Lõpp"])
